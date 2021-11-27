@@ -1,16 +1,20 @@
 import 'package:clima/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const ClimaApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class ClimaApp extends StatelessWidget {
+  const ClimaApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: LoadingScreen(),
+      home: const Scaffold(
+        body: SafeArea(
+          child: LoadingScreen(),
+        ),
+      ),
     );
   }
 }
