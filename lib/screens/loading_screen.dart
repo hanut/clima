@@ -1,6 +1,5 @@
 import 'package:clima/screens/location_screen.dart';
-import 'package:clima/services/location.dart';
-import 'package:clima/services/networking.dart';
+import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -12,41 +11,24 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   bool isLoading = true;
-  Location? location;
 
   void _getLocation() async {
     try {
-      var loc = Location();
-      await loc.getCurrentLocation();
-      setState(() {
-        location = loc;
-      });
-      _getWeather();
-    } catch (e) {
-      final snackBar = SnackBar(
-        content: Text(
-          e.toString(),
+      final weather = await WeatherModel.getWeatherData();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationScreen(
+            weather: weather,
+          ),
         ),
-        duration: const Duration(seconds: 5),
       );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      showSnack(e.toString());
     }
     setState(() {
       isLoading = false;
     });
-  }
-
-  void _getWeather() async {
-    final weather = await loadWeatherFromOpenApi(location: location!);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LocationScreen(
-          weather: weather,
-        ),
-      ),
-    );
   }
 
   @override
@@ -68,5 +50,16 @@ class _LoadingScreenState extends State<LoadingScreen> {
         ),
       )),
     );
+  }
+
+  showSnack(String message) {
+    final snackBar = SnackBar(
+      content: Text(
+        message,
+      ),
+      duration: const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

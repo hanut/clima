@@ -1,5 +1,30 @@
+import 'package:clima/services/location.dart';
+import 'package:clima/services/networking.dart';
+
+class WeatherReport {
+  final String city;
+  final double temperature;
+  final int condition;
+
+  WeatherReport({
+    required this.city,
+    required this.condition,
+    required this.temperature,
+  });
+}
+
 class WeatherModel {
-  String getWeatherIcon(int condition) {
+  static Future<WeatherReport> getWeatherData() async {
+    try {
+      var location = Location();
+      await location.getCurrentLocation();
+      return await loadWeatherFromOpenApi(location: location);
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
+  static String getWeatherIcon(int condition) {
     if (condition < 300) {
       return '🌩';
     } else if (condition < 400) {
@@ -19,7 +44,7 @@ class WeatherModel {
     }
   }
 
-  String getMessage(int temp) {
+  static String getMessage(int temp) {
     if (temp > 25) {
       return 'It\'s 🍦 time';
     } else if (temp > 20) {

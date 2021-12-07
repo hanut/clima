@@ -1,27 +1,34 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:clima/services/location.dart';
+import 'package:clima/services/weather.dart';
 import 'package:http/http.dart' as http;
 
-const apiKey = "";
+const apiKey = "93fe339d8036fba905bf4d94f8dd7441";
+const apiDomain = "api.openweathermap.org";
+const baseUrl = "https://" + apiDomain + "/data/2.5/weather";
 
-class WeatherReport {
-  final String city;
-  final double temperature;
-  final int condition;
-
-  WeatherReport({
-    required this.city,
-    required this.condition,
-    required this.temperature,
-  });
+Future<bool> hasNetwork() async {
+  try {
+    final result = await InternetAddress.lookup(apiDomain);
+    return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+  } on SocketException catch (_) {
+    return false;
+  }
 }
 
 Future<WeatherReport> loadWeatherFromOpenApi({
   required Location location,
 }) async {
+  if (!await hasNetwork()) {
+    return Future.error(
+        "Internet not available. Please reconnect and try again.");
+  }
+
   var uri = Uri.parse(
-    "https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&units=metric&appid=${apiKey}",
+    baseUrl +
+        "?lat=${location.latitude}&lon=${location.longitude}&units=metric&appid=$apiKey",
   );
 
   http.Response response = await http.get(uri);
