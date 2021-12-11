@@ -1,6 +1,6 @@
-import 'dart:developer';
 import 'dart:ui';
 
+import 'package:clima/screens/city_screen.dart';
 import 'package:clima/services/weather.dart';
 import 'package:clima/utilities/constants.dart';
 import 'package:flutter/material.dart';
@@ -29,13 +29,48 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   updateWeather(WeatherReport weatherData) {
-    log("City: ${weatherData.city} | Temp: ${weatherData.temperature} | Cond: ${weatherData.condition}");
+    // log("City: ${weatherData.city} | Temp: ${weatherData.temperature} | Cond: ${weatherData.condition}");
     setState(() {
       temperature = weatherData.temperature;
       message = WeatherModel.getMessage(temperature.toInt()) +
           " in ${weatherData.city} !";
       wIcon = WeatherModel.getWeatherIcon(weatherData.condition);
     });
+  }
+
+  void _updateWeatherForNewCity(String cityName) async {
+    try {
+      var weatherData = await WeatherModel.getCityWeather(cityName);
+      updateWeather(weatherData);
+    } catch (e) {
+      var reason = e.toString();
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Center(
+            child: Text(
+              "Whoops !",
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          content: Text(
+            reason == "Not Found"
+                ? "Couldn't find the city you searched for"
+                : reason,
+            style: const TextStyle(
+              fontWeight: FontWeight.w300,
+              fontSize: 20,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -61,16 +96,28 @@ class _LocationScreenState extends State<LocationScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    TextButton(
-                      onPressed: () {},
+                    FlatButton(
+                      onPressed: () async {
+                        var weatherData = await WeatherModel.getWeatherData();
+                        updateWeather(weatherData);
+                      },
                       child: const Icon(
                         Icons.near_me,
                         size: 50.0,
                         color: Colors.white,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
+                    FlatButton(
+                      onPressed: () async {
+                        var cityName = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CityScreen(),
+                          ),
+                        );
+                        if (cityName == null) return;
+                        _updateWeatherForNewCity(cityName);
+                      },
                       child: const Icon(
                         Icons.location_city,
                         size: 50.0,

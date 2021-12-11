@@ -24,6 +24,14 @@ class WeatherModel {
     }
   }
 
+  static Future<WeatherReport> getCityWeather(String cityName) async {
+    try {
+      return await loadCityWeatherFromOpenApi(cityName: cityName);
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
   static String getWeatherIcon(int condition) {
     if (condition < 300) {
       return '🌩';

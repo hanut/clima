@@ -37,6 +37,32 @@ Future<WeatherReport> loadWeatherFromOpenApi({
   }
 
   final decodedData = jsonDecode(response.body);
+  print(decodedData);
+  return WeatherReport(
+    city: decodedData['name'],
+    condition: decodedData["weather"][0]["id"],
+    temperature: decodedData["main"]["temp"],
+  );
+}
+
+Future<WeatherReport> loadCityWeatherFromOpenApi({
+  required String cityName,
+}) async {
+  if (!await hasNetwork()) {
+    return Future.error(
+        "Internet not available. Please reconnect and try again.");
+  }
+
+  var uri = Uri.parse(
+    baseUrl + "?q=$cityName&units=metric&appid=$apiKey",
+  );
+
+  http.Response response = await http.get(uri);
+  if (response.statusCode != 200) {
+    return Future.error(response.reasonPhrase ?? "Unknown Error");
+  }
+
+  final decodedData = jsonDecode(response.body);
   return WeatherReport(
     city: decodedData['name'],
     condition: decodedData["weather"][0]["id"],
