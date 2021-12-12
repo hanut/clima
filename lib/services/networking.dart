@@ -37,7 +37,6 @@ Future<WeatherReport> loadWeatherFromOpenApi({
   }
 
   final decodedData = jsonDecode(response.body);
-  print(decodedData);
   return WeatherReport(
     city: decodedData['name'],
     condition: decodedData["weather"][0]["id"],
